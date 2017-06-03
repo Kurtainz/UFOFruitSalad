@@ -13,7 +13,43 @@ var wfconfig = {
 WebFont.load(wfconfig);
 
 var init = function() {
-	var game = new Phaser.Game(640, 480, '', Phaser.AUTO);
+	var game = new Phaser.Game(640, 480, Phaser.AUTO, 'game');
+
+	var title = {
+
+		preload : function() {
+			game.load.image('background', 'images/background1.png');
+			game.load.image('invisibleWall', 'images/invisible_wall.png');
+			game.load.image('ground', 'images/ground.png');
+			game.load.image('grass4', 'images/grass_4x1.png');
+			game.load.image('grass2', 'images/grass_2x1.png');
+			game.load.image('grass1', 'images/grass_1x1.png');
+			game.load.image('ufo', 'images/ufo.png');
+			game.load.spritesheet('guy', 'images/guy.png', 16, 24, 16);
+			game.load.image('apple', 'images/apple.png');
+			game.load.image('banana', 'images/banana.png');
+			game.load.image('lemon', 'images/lemon.png');
+			game.load.image('orange', 'images/orange.png');
+			game.load.image('pear', 'images/pear.png');
+			game.load.image('strawberry', 'images/strawberry.png');
+		},
+
+		create : function() {
+			game.add.text(130, 150, 'UFO Fruit Salad \n\nPress space to begin', { font : 'Barrio', fontSize: '40px', fill: '#fff' });
+			controls = game.input.keyboard.addKeys({
+		    	left : Phaser.KeyCode.LEFT,
+		    	right : Phaser.KeyCode.RIGHT,
+		    	space : Phaser.KeyCode.SPACEBAR
+		    });
+		},
+		update : function() {
+			if (controls.space.isDown) {
+				console.log('button pressed!');
+				game.state.start('GameState');
+			}
+		}
+	};
+
 	var platforms,
 		player,
 		controls,
@@ -24,6 +60,7 @@ var init = function() {
 	var score = 0;
 	var timer = 0;
 	var fruitCounter = 0;
+	var stateText = "Welcome! \nPress space to begin!";
 
 	function UFO(x, y) {
 		var ufo = game.add.sprite(x, y, 'ufo');
@@ -87,28 +124,14 @@ var init = function() {
 
 	// Main gamestate
 	var GameState = {
-		preload : function() {
-			game.load.image('background', 'images/background1.png');
-			game.load.image('invisibleWall', 'images/invisible_wall.png');
-			game.load.image('ground', 'images/ground.png');
-			game.load.image('grass4', 'images/grass_4x1.png');
-			game.load.image('grass2', 'images/grass_2x1.png');
-			game.load.image('grass1', 'images/grass_1x1.png');
-			game.load.image('ufo', 'images/ufo.png');
-			game.load.spritesheet('guy', 'images/guy.png', 16, 24, 16);
-			game.load.image('apple', 'images/apple.png');
-			game.load.image('banana', 'images/banana.png');
-			game.load.image('lemon', 'images/lemon.png');
-			game.load.image('orange', 'images/orange.png');
-			game.load.image('pear', 'images/pear.png');
-			game.load.image('strawberry', 'images/strawberry.png');
-		},
 
 		create : function() {
 			game.physics.startSystem(Phaser.Physics.ARCADE);
 
 			// Adds background into game
 			game.add.image(0, 0, 'background');
+
+
 
 			// Add score
 			scoreText = game.add.text(16, 16, 'Score: 0', { font : 'Barrio', fontSize: '24px', fill: '#000' });
@@ -264,7 +287,7 @@ var init = function() {
 		        }
 	}
 	};
-
+	game.state.add('Title', title);
 	game.state.add('GameState', GameState);
-	game.state.start('GameState');	
+	game.state.start('Title');	
 }
