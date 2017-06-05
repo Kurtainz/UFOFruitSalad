@@ -15,41 +15,6 @@ WebFont.load(wfconfig);
 var init = function() {
 	var game = new Phaser.Game(640, 480, Phaser.AUTO, 'game');
 
-	var title = {
-
-		preload : function() {
-			game.load.image('background', 'images/background1.png');
-			game.load.image('invisibleWall', 'images/invisible_wall.png');
-			game.load.image('ground', 'images/ground.png');
-			game.load.image('grass4', 'images/grass_4x1.png');
-			game.load.image('grass2', 'images/grass_2x1.png');
-			game.load.image('grass1', 'images/grass_1x1.png');
-			game.load.image('ufo', 'images/ufo.png');
-			game.load.spritesheet('guy', 'images/guy.png', 16, 24, 16);
-			game.load.image('apple', 'images/apple.png');
-			game.load.image('banana', 'images/banana.png');
-			game.load.image('lemon', 'images/lemon.png');
-			game.load.image('orange', 'images/orange.png');
-			game.load.image('pear', 'images/pear.png');
-			game.load.image('strawberry', 'images/strawberry.png');
-		},
-
-		create : function() {
-			game.add.text(130, 150, 'UFO Fruit Salad \n\nPress space to begin', { font : 'Barrio', fontSize: '40px', fill: '#fff' });
-			controls = game.input.keyboard.addKeys({
-		    	left : Phaser.KeyCode.LEFT,
-		    	right : Phaser.KeyCode.RIGHT,
-		    	space : Phaser.KeyCode.SPACEBAR
-		    });
-		},
-		update : function() {
-			if (controls.space.isDown) {
-				console.log('button pressed!');
-				game.state.start('GameState');
-			}
-		}
-	};
-
 	var platforms,
 		player,
 		controls,
@@ -118,9 +83,44 @@ var init = function() {
 
 	function playerTouchingEnemy() {
 		game.physics.arcade.overlap(player, enemies, function(player, enemies) {
-			game.state.restart();
+			game.state.start('GameOver');
 		})
 	}
+
+	var Title = {
+
+		preload : function() {
+			game.load.json('buildGame', 'scripts/buildGame.json');
+			game.load.image('background', 'images/background1.png');
+			game.load.image('invisibleWall', 'images/invisible_wall.png');
+			game.load.image('ground', 'images/ground.png');
+			game.load.image('grass4', 'images/grass_4x1.png');
+			game.load.image('grass2', 'images/grass_2x1.png');
+			game.load.image('grass1', 'images/grass_1x1.png');
+			game.load.image('ufo', 'images/ufo.png');
+			game.load.spritesheet('guy', 'images/guy.png', 16, 24, 16);
+			game.load.image('apple', 'images/apple.png');
+			game.load.image('banana', 'images/banana.png');
+			game.load.image('lemon', 'images/lemon.png');
+			game.load.image('orange', 'images/orange.png');
+			game.load.image('pear', 'images/pear.png');
+			game.load.image('strawberry', 'images/strawberry.png');
+		},
+
+		create : function() {
+			game.add.text(130, 150, 'UFO Fruit Salad \n\nPress space to begin', { font : 'Barrio', fontSize: '40px', fill: '#fff' });
+			controls = game.input.keyboard.addKeys({
+		    	left : Phaser.KeyCode.LEFT,
+		    	right : Phaser.KeyCode.RIGHT,
+		    	space : Phaser.KeyCode.SPACEBAR
+		    });
+		},
+		update : function() {
+			if (controls.space.isDown) {
+				game.state.start('GameState');
+			}
+		}
+	};
 
 	// Main gamestate
 	var GameState = {
@@ -142,45 +142,25 @@ var init = function() {
 			// Add ground
 			ground = platforms.create(0, game.world.height - 30, 'ground');
 
-			// Add platforms
-			ledge = platforms.create(400, 350, 'grass2');
+			var json = game.cache.getJSON('buildGame');
 
-		    ledge = platforms.create(550, 250, 'grass2');
+			json.platforms.forEach(function(entry) {
+				platforms.create(entry.x, entry.y, entry.image);
+			});
 
-		    ledge = platforms.create(0, 250, 'grass2');
-
-		    ledge = platforms.create(300, 140, 'grass1');
-
-		    ledge = platforms.create(0, 90, 'grass1');
-
-		    ledge = platforms.create(150, 90, 'grass1');
-
-		    ledge = platforms.create(180, 350, 'grass2');
-
-		    ledge = platforms.create(500, 80, 'grass1');
-
-		    ledge = platforms.create(235, 250, 'grass4');
+			// Add platforms from JSON file
 
 		    platforms.forEach(function(platform) {
 		    	platform.body.immovable = true;
 		    })
 
-		    // Add invisible walls to keep enemies on platforms
+		    // Add invisible walls from JSON to keep enemies on platforms
 		    invisibleWalls = game.add.group();
 		    invisibleWalls.enableBody = true;
 
-		    invisibleWalls.add(GenerateInvisibleWall(220, 220));
-		    invisibleWalls.add(GenerateInvisibleWall(403, 220));
-		    
-		    invisibleWalls.add(GenerateInvisibleWall(385, 325));
-		    invisibleWalls.add(GenerateInvisibleWall(485, 325));
-
-		    invisibleWalls.add(GenerateInvisibleWall(165, 325));
-		    invisibleWalls.add(GenerateInvisibleWall(265, 325));
-
-		    invisibleWalls.add(GenerateInvisibleWall(85, 220));
-
-		    invisibleWalls.add(GenerateInvisibleWall(535, 220));
+		    json.invisibleWalls.forEach(function(wall) {
+		    	invisibleWalls.add(GenerateInvisibleWall(wall.x, wall.y));
+		    })
 
 		    invisibleWalls.forEach(function(wall) {
 		    	wall.body.immovable = true;
@@ -194,7 +174,7 @@ var init = function() {
 		    game.physics.arcade.enable(player);
 
 		    //  Player physics properties
-		    player.body.gravity.y = 380;
+		    player.body.gravity.y = 500;
 		    player.body.collideWorldBounds = true;
 
 		    //  Our two animations, walking left and right.
@@ -207,13 +187,11 @@ var init = function() {
 		    // Make a group to hold all of the enemies
 		    enemies = game.add.group();
 
-		    // Add enemies. Hoping to move this to a JSON file at some point
-		    enemies.add(UFO(266, 230));
-		    enemies.add(UFO(220, 330));
-		    enemies.add(UFO(450, 330));
-		    enemies.add(UFO(497, 430));
-		    enemies.add(UFO(0, 223));
-		    enemies.add(UFO(620, 223));
+		    // Add enemies from JSON file
+
+		    json.enemies.forEach(function(entry) {
+		    	enemies.add(UFO(entry.x, entry.y));
+		    })
 
 		    // Make a group to hold all of the fruit
 		    fruit = game.add.group();
@@ -273,7 +251,7 @@ var init = function() {
 			    }
 
 			    if (controls.space.isDown && player.body.touching.down) {
-			        player.body.velocity.y = -300;
+			        player.body.velocity.y = -400;
 			    }
 
 			    if (player.body.velocity.x < 0 && !player.body.touching.down) {
@@ -285,9 +263,27 @@ var init = function() {
 		        else if (player.body.velocity.x === 0 && !player.body.touching.down) {
 		        	player.animations.play('jump');
 		        }
-	}
+			}
 	};
-	game.state.add('Title', title);
+
+	var GameOver = {
+
+		create : function() {
+			game.add.text(160, 110, 'Game Over! \nYour score: ' + score, { font : 'Barrio', fontSize: '40px', fill: '#fff' });
+			game.add.text(70, 280, 'Press space to play again', { font : 'Barrio', fontSize: '40px', fill: '#fff' });	
+		},
+
+		update : function() {
+			if (controls.space.isDown) {
+				score = 0;
+				game.state.start('GameState');
+			}
+		}
+
+	}
+
+	game.state.add('Title', Title);
 	game.state.add('GameState', GameState);
+	game.state.add('GameOver', GameOver);
 	game.state.start('Title');	
 }
