@@ -270,7 +270,10 @@ var init = function() {
 
 		create : function() {
 			game.add.text(160, 110, 'Game Over! \nYour score: ' + score, { font : 'Barrio', fontSize: '40px', fill: '#fff' });
-			game.add.text(70, 280, 'Press space to play again', { font : 'Barrio', fontSize: '40px', fill: '#fff' });	
+			game.add.text(70, 280, 'Press space to play again', { font : 'Barrio', fontSize: '40px', fill: '#fff' });
+			var name = prompt("Thanks for playing. You scored " + score + ". Please enter your name: ");
+			postData(name, score);
+			getData();
 		},
 
 		update : function() {
