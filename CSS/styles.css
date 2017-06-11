@@ -1,7 +1,24 @@
 body {
 	width: 80%;
+	font-family: 'Barrio', cursive;
 }
 
 h1 {
 	text-align: center;
+	font-size: 3.1em;
+}
+
+.block {
+	display: flex;
+}
+
+#scoreTable {
+	font-size: 1.4em;
+	width: 50%;
+	margin-left: 20px;
+}
+
+thead {
+	font-size: 1.5em;
+	text-align: left;
 }

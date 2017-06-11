@@ -21,7 +21,10 @@ var init = function() {
 		invisibleWalls,
 		enemies,
 		fruit,
-		scoreText;
+		scoreText,
+		jumpSound,
+		fruitSound,
+		deathSound;
 	var score = 0;
 	var timer = 0;
 	var fruitCounter = 0;
@@ -71,6 +74,7 @@ var init = function() {
 
 	function playerTouchingFruit() {
 		game.physics.arcade.overlap(player, fruit, function(player, fruit) {
+			fruitSound.play();
 			fruit.kill();
 			updateScore();
 		})
@@ -83,8 +87,12 @@ var init = function() {
 
 	function playerTouchingEnemy() {
 		game.physics.arcade.overlap(player, enemies, function(player, enemies) {
-			game.state.start('GameOver');
-		})
+			game.paused = true;
+			setTimeout(function() {
+				game.paused = false;
+				game.state.start('GameOver');
+			}, 2000);
+		});
 	}
 
 	var Title = {
@@ -105,6 +113,9 @@ var init = function() {
 			game.load.image('orange', 'images/orange.png');
 			game.load.image('pear', 'images/pear.png');
 			game.load.image('strawberry', 'images/strawberry.png');
+			game.load.audio('jump', 'sounds/jump.wav');
+			game.load.audio('fruitSound', 'sounds/fruit.wav');
+			game.load.audio('deathSound', 'sounds/death.wav');
 		},
 
 		create : function() {
@@ -131,7 +142,12 @@ var init = function() {
 			// Adds background into game
 			game.add.image(0, 0, 'background');
 
-
+			// Add sounds
+			jumpSound = game.add.audio('jump');
+    		jumpSound.allowMultiple = true;
+    		fruitSound = game.add.audio('fruitSound');
+    		fruitSound.allowMultiple = true;
+    		deathSound = game.add.audio('deathSound');
 
 			// Add score
 			scoreText = game.add.text(16, 16, 'Score: 0', { font : 'Barrio', fontSize: '24px', fill: '#000' });
@@ -252,6 +268,7 @@ var init = function() {
 
 			    if (controls.space.isDown && player.body.touching.down) {
 			        player.body.velocity.y = -400;
+			        jumpSound.play();
 			    }
 
 			    if (player.body.velocity.x < 0 && !player.body.touching.down) {
