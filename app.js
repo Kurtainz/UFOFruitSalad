@@ -24,13 +24,22 @@ app.post('/scoreupdate', function(request, response) {
 		}
 		// Load JSON file into memory to edit
 		var parsedContent = JSON.parse(content);
+		// If user does not supply a name, will randomly generate one with chance
 		if (!request.body.name) {
 			request.body.name = chance.first();
 		}
+
 		parsedContent.scores.push(request.body);
-		if (parsedContent.scores.length > 20) {
-			parsedContent.shift();
+
+		// Check to see if scoreboard length is greater than 14. If so, discard the lowest score. 
+		if (parsedContent.scores.length > 14) {
+			parsedContent.scores.sort(function(a, b) {
+				return b.score - a.score;
+			});
+			parsedContent.scores.pop();
 		}
+
+		// Write JSON to disk
 		fs.writeFile('scripts/scores.json', JSON.stringify(parsedContent), function(error) {
 			if (error) {
 				console.log("Unable to write file");
@@ -40,11 +49,5 @@ app.post('/scoreupdate', function(request, response) {
 });
 
 app.listen(process.env.PORT, process.env.IP, function() {
-	var time = new Date();
-    var hours = (time.getHours());
-    var minutes = time.getMinutes();
-    if (time.getMinutes() < 10) {
-        minutes = "0" + time.getMinutes();
-    }
-    console.log("Server started at: " + hours + ":" + minutes);
+	console.log('Server started');
 });

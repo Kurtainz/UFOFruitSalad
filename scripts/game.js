@@ -90,6 +90,7 @@ var init = function() {
 			game.paused = true;
 			setTimeout(function() {
 				game.paused = false;
+				deathSound.play();
 				game.state.start('GameOver');
 			}, 2000);
 		});

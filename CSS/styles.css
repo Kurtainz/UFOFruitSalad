@@ -1,6 +1,11 @@
 body {
 	width: 80%;
 	font-family: 'Barrio', cursive;
+	background-image: url('../images/pixels.jpg');
+	background-position: center;
+	background-attachment: fixed;
+	color: #fff;
+	text-shadow: 3px 3px 0px rgba(49, 46, 46, 1);
 }
 
 h1 {
@@ -10,12 +15,17 @@ h1 {
 
 .block {
 	display: flex;
+	height: 480px;
+}
+
+#game {
+	width: 640px;
 }
 
 #scoreTable {
 	font-size: 1.4em;
 	width: 50%;
-	margin-left: 20px;
+	margin-left: 100px;
 }
 
 thead {
