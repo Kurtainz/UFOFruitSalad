@@ -31,11 +31,13 @@ app.post('/scoreupdate', function(request, response) {
 
 		parsedContent.scores.push(request.body);
 
-		// Check to see if scoreboard length is greater than 14. If so, discard the lowest score. 
-		if (parsedContent.scores.length > 14) {
-			parsedContent.scores.sort(function(a, b) {
+		// Sort the scores so they are in descending order
+		parsedContent.scores.sort(function(a, b) {
 				return b.score - a.score;
 			});
+
+		// Check to see if scoreboard length is greater than 14. If so, discard the lowest score. 
+		if (parsedContent.scores.length > 14) {
 			parsedContent.scores.pop();
 		}
 

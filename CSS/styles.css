@@ -9,26 +9,40 @@ body {
 }
 
 h1 {
-	text-align: center;
-	font-size: 3.1em;
-}
-
-.block {
-	display: flex;
-	height: 480px;
+	display: none;
 }
 
 #game {
-	width: 640px;
-}
-
-#scoreTable {
-	font-size: 1.4em;
-	width: 50%;
-	margin-left: 100px;
+	width: 95vw;
+	height: 90vh;
 }
 
 thead {
 	font-size: 1.5em;
 	text-align: left;
+}
+
+@media screen and (min-width: 992px) {
+
+	.block {
+		display: flex;
+		height: 480px;
+	}
+
+	#game {
+		width: 640px;
+		height: 480px;
+	}
+
+	#scoreTable {
+		font-size: 1.4em;
+		width: 50%;
+		margin-left: 100px;
+	}
+
+	h1 {
+		text-align: center;
+		font-size: 3.1em;
+	}
+
 }

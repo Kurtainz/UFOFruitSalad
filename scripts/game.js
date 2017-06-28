@@ -24,8 +24,13 @@ var init = function() {
 		scoreText,
 		jumpSound,
 		fruitSound,
-		deathSound;
+		deathSound,
+		buttonLeft,
+		buttonRight;
 	var score = 0;
+	var left = false;
+	var right = false;
+	var jump = false;
 	var timer = 0;
 	var fruitCounter = 0;
 	var stateText = "Welcome! \nPress space to begin!";
@@ -101,6 +106,8 @@ var init = function() {
 		preload : function() {
 			game.load.json('buildGame', 'scripts/buildGame.json');
 			game.load.image('background', 'images/background1.png');
+			game.load.spritesheet('moveButton', 'images/button-horizontal.png', 96, 64);
+			game.load.spritesheet('jumpButton', 'images/button-round.png', 96, 96);
 			game.load.image('invisibleWall', 'images/invisible_wall.png');
 			game.load.image('ground', 'images/ground.png');
 			game.load.image('grass4', 'images/grass_4x1.png');
@@ -120,12 +127,22 @@ var init = function() {
 		},
 
 		create : function() {
-			game.add.text(130, 150, 'UFO Fruit Salad \n\nPress space to begin', { font : 'Barrio', fontSize: '40px', fill: '#fff' });
+			getData();
+			if (!game.device.desktop) {
+				game.add.text(130, 150, 'UFO Fruit Salad \n\nTap to begin', { font : 'Barrio', fontSize: '40px', fill: '#fff' });
+			}
+			else {
+				game.add.text(130, 150, 'UFO Fruit Salad \n\nPress space to begin', { font : 'Barrio', fontSize: '40px', fill: '#fff' });
+			}
+
 			controls = game.input.keyboard.addKeys({
-		    	left : Phaser.KeyCode.LEFT,
-		    	right : Phaser.KeyCode.RIGHT,
-		    	space : Phaser.KeyCode.SPACEBAR
-		    });
+			    	left : Phaser.KeyCode.LEFT,
+			    	right : Phaser.KeyCode.RIGHT,
+			    	space : Phaser.KeyCode.SPACEBAR
+			    });
+			
+		    game.scale.scaleMode = Phaser.ScaleManager.EXACT_FIT;
+		    game.input.onDown.add(function() {game.state.start('GameState')});
 		},
 		update : function() {
 			if (controls.space.isDown) {
@@ -138,6 +155,7 @@ var init = function() {
 	var GameState = {
 
 		create : function() {
+
 			game.physics.startSystem(Phaser.Physics.ARCADE);
 
 			// Adds background into game
@@ -213,12 +231,23 @@ var init = function() {
 		    // Make a group to hold all of the fruit
 		    fruit = game.add.group();
 
-		    // Get control keys
-		    controls = game.input.keyboard.addKeys({
-		    	left : Phaser.KeyCode.LEFT,
-		    	right : Phaser.KeyCode.RIGHT,
-		    	space : Phaser.KeyCode.SPACEBAR
-		    })
+		    // Add touch screen buttons
+		    if (!game.device.desktop) {
+		    	buttonLeft = game.add.button(15, 400, 'moveButton');
+				buttonRight = game.add.button(136, 400, 'moveButton');
+				buttonJump = game.add.button(540, 385, 'jumpButton');
+
+				buttonLeft.scale.setTo(1.2);
+				buttonRight.scale.setTo(1.2);
+
+				buttonLeft.events.onInputDown.add(function(){left = true;});
+				buttonLeft.events.onInputUp.add(function(){left = false;});
+				buttonRight.events.onInputDown.add(function(){right = true;});
+				buttonRight.events.onInputUp.add(function(){right = false;});
+				buttonJump.events.onInputDown.add(function(){jump = true;});
+				buttonJump.events.onInputUp.add(function(){jump = false;});
+		    }
+			
 
 			},
 			update : function() {
@@ -243,18 +272,18 @@ var init = function() {
 			    	}
 			    })
 
-			    // Generate fruit
+			    // Generate fruit. Will run every 1500ms
 			    if (timer < game.time.now) {
 			    	fruit.add(MakeFruit());
 			    }
 
-			    if (controls.left.isDown) {
+			    if (controls.left.isDown || left) {
 			        //  Move to the left
 			        player.body.velocity.x = -200;
 
 			        player.animations.play('left');
 			    }
-			    else if (controls.right.isDown) {
+			    else if (controls.right.isDown || right) {
 			        //  Move to the right
 			        player.body.velocity.x = 200;
 
@@ -267,7 +296,7 @@ var init = function() {
 			        player.frame = 0;
 			    }
 
-			    if (controls.space.isDown && player.body.touching.down) {
+			    if ((controls.space.isDown || jump) && player.body.touching.down) {
 			        player.body.velocity.y = -400;
 			        jumpSound.play();
 			    }
@@ -288,15 +317,25 @@ var init = function() {
 
 		create : function() {
 			game.add.text(160, 110, 'Game Over! \nYour score: ' + score, { font : 'Barrio', fontSize: '40px', fill: '#fff' });
-			game.add.text(70, 280, 'Press space to play again', { font : 'Barrio', fontSize: '40px', fill: '#fff' });
-			var name = prompt("Thanks for playing. You scored " + score + ". Please enter your name: ");
-			postData(name, score);
-			getData();
+			if (!game.device.desktop) {
+				game.add.text(70, 280, 'Tap to play again', { font : 'Barrio', fontSize: '40px', fill: '#fff' });
+			}
+			else {
+				game.add.text(70, 280, 'Press space to play again', { font : 'Barrio', fontSize: '40px', fill: '#fff' });
+			}
+
+			if (score > lowestScore) {
+				var name = prompt("Thanks for playing. You scored " + score + ". Please enter your name: ");
+				postData(name, score);
+			}
+			
+			game.input.onDown.add(function() {game.state.start('GameState')});
 		},
 
 		update : function() {
 			if (controls.space.isDown) {
 				score = 0;
+				getData();
 				game.state.start('GameState');
 			}
 		}

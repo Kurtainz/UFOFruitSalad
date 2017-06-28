@@ -1,3 +1,5 @@
+var lowestScore;
+
 function getData() {
 	var request = new XMLHttpRequest();
 	request.open('GET', 'scores.json', true);
@@ -9,14 +11,6 @@ function getData() {
 	}
 }
 
-function clearTable() {
-	var table = document.getElementById('scoreTable');
-	// Check if the table has any contents, clear if it does
-	if (table.tBodies.length > 0) {
-		table.removeChild(table.getElementsByTagName('tbody')[0]);
-	}
-}
-
 function populateTable(content) {
 	clearTable();
 	var table = document.getElementById('scoreTable');
@@ -24,6 +18,8 @@ function populateTable(content) {
 	var sortedArray = content.scores.sort(function(a, b) {
 		return b.score - a.score;
 	});
+	// lowestScore is set so the game can check if your score is higher at GameOver
+	lowestScore = sortedArray[sortedArray.length - 1].score;
 	sortedArray.forEach(function(entry) {
 		var row = tBody.insertRow();
 		var cellName = row.insertCell();
@@ -33,6 +29,14 @@ function populateTable(content) {
 	});
 }
 
+function clearTable() {
+	var table = document.getElementById('scoreTable');
+	// Check if the table has any contents, clear if it does
+	if (table.tBodies.length > 0) {
+		table.removeChild(table.getElementsByTagName('tbody')[0]);
+	}
+}
+
 function postData(name, score) {
 	var obj = {name : name, score : score};
 	var request = new XMLHttpRequest();
@@ -40,5 +44,3 @@ function postData(name, score) {
 	request.setRequestHeader("Content-type", "application/json");
 	request.send(JSON.stringify(obj));
 }
-
-getData();
